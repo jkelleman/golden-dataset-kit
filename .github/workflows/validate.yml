@@ -1,0 +1,19 @@
+name: Validate golden set
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Schema and coverage
+        run: python scripts/validate_dataset.py
+      - name: Agreement report (informational)
+        run: python scripts/agreement.py data/annotations_round1.csv
