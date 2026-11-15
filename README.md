@@ -1,4 +1,14 @@
+<p align="center"><img src="assets/banner.png" alt="Golden Dataset Kit banner: binary rubric and LLM-as-a-judge evaluation" width="100%"></p>
+
 # Golden Dataset Kit: LLM-as-a-Judge Evaluation for AI Customer Support Agents
+
+[![Validate golden set](https://github.com/jkelleman/golden-dataset-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/jkelleman/golden-dataset-kit/actions/workflows/validate.yml)
+![rubric: 8 binary criteria](https://img.shields.io/badge/rubric-8%20binary%20criteria-e8a93a)
+![golden set: 24 labeled conversations](https://img.shields.io/badge/golden%20set-24%20labeled%20conversations-e8a93a)
+![method: LLM-as-a-judge](https://img.shields.io/badge/method-LLM--as--a--judge-24201a)
+![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Built by Jen Kelleman](https://img.shields.io/badge/built%20by-Jen%20Kelleman-555555?logo=github&logoColor=white)](https://github.com/jkelleman)
 
 Everything needed to build, label, and maintain a golden evaluation set for an AI customer-support agent, then calibrate LLM judges against it: a binary rubric, a labeling guide with boundary decisions, 24 labeled conversations, and scripts for agreement, validation, judge prompts, and judge scoring.
 
