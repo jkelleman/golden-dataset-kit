@@ -1,4 +1,4 @@
-# Golden Dataset Kit
+# Golden Dataset Kit: LLM-as-a-Judge Evaluation for AI Customer Support Agents
 
 Everything needed to build, label, and maintain a golden evaluation set for an AI customer-support agent, then calibrate LLM judges against it: a binary rubric, a labeling guide with boundary decisions, 24 labeled conversations, and scripts for agreement, validation, judge prompts, and judge scoring.
 
