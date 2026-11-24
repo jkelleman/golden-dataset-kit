@@ -2,6 +2,9 @@
 
 # Golden Dataset Kit: LLM-as-a-Judge Evaluation for AI Customer Support Agents
 
+**[Live demo](https://jkelleman.github.io/golden-dataset-kit/)**: browse the labeled conversations, rater agreement and the judge release gate.
+
+
 [![Validate golden set](https://github.com/jkelleman/golden-dataset-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/jkelleman/golden-dataset-kit/actions/workflows/validate.yml)
 ![rubric: 8 binary criteria](https://img.shields.io/badge/rubric-8%20binary%20criteria-e8a93a)
 ![golden set: 24 labeled conversations](https://img.shields.io/badge/golden%20set-24%20labeled%20conversations-e8a93a)
@@ -25,6 +28,7 @@ The hard part isn't the data format. It's getting people to agree on what "good"
 ## What's inside
 
 ```
+index.html                    the live page (GitHub Pages); reads the files below
 rubric/rubric.yaml          8 binary criteria, severities, error-tag taxonomy
 guidelines/labeling-guide.md   how to label, calibrate, adjudicate + boundary decisions
 docs/lifecycle.md           define → label → calibrate judge → operate

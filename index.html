@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golden Dataset Kit · Jen Kelleman</title>
+<meta name="description" content="A binary rubric, 24 labeled support conversations, rater agreement and an LLM-judge release gate, in one browsable page.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.lib { display: grid; gap: 24px; }
+@media (min-width: 960px) { .lib { grid-template-columns: 300px 1fr; align-items: start; } .list { position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow-y: auto; } }
+.list { display: flex; flex-direction: column; gap: 6px; }
+.item { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; cursor: pointer; color: var(--ink); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.item:hover { border-color: var(--ink); }
+.item[aria-current="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.item .i { font-size: 14px; } .item .i b { font-family: var(--mono); font-weight: 600; font-size: 12px; margin-right: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.labels { display: grid; gap: 6px; margin-top: 18px; }
+.labels .row { display: grid; grid-template-columns: 210px 70px 1fr; gap: 10px; align-items: baseline; font-size: 14px; padding: 6px 0; border-top: 1px solid var(--rule); }
+@media (max-width: 640px) { .labels .row { grid-template-columns: 1fr auto; } .labels .row .why { grid-column: 1 / -1; } }
+.ctx { background: var(--bg); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 14px 0; }
+.ctx pre { margin: 4px 0 0; white-space: pre-wrap; font: 12px/1.5 var(--mono); color: var(--graphite); }
+.crit h3 { margin: 0; font-family: var(--mono); font-size: 15px; }
+.crit p { margin: 8px 0 0; font-size: 14px; }
+.crit .q { font-size: 16px; color: var(--ink); }
+.crit dl { margin: 10px 0 0; font-size: 14px; } .crit dt { font-weight: 600; margin-top: 8px; } .crit dd { margin: 2px 0 0; color: var(--graphite); }
+.gate { display: flex; flex-wrap: wrap; gap: 24px; margin: 0 0 18px; }
+.gate label { font-size: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 240px; }
+.gate output { font-family: var(--mono); font-weight: 600; }
+.verdict { font-size: 18px; margin: 14px 0 0; }
+td.num, th.num { text-align: right; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="name" href="https://aiwithjen.com">Jen Kelleman</a>
+  <nav><a href="https://aiwithjen.com/code">Prototypes</a><a href="https://github.com/jkelleman/golden-dataset-kit">Code on GitHub</a></nav>
+</div></header>
+
+<main>
+<div class="wrap hero">
+  <p class="label">Golden Dataset Kit</p>
+  <h1>The answer key for <em>an AI support agent.</em></h1>
+  <p class="lede">A binary rubric, 24 labeled conversations, a two-rater agreement check and a release gate for an LLM judge. Browse the labels, read the rubric and see whether the sample judge is ready to ship.</p>
+  <ul class="facts" id="facts"><li><b>8</b> binary criteria</li><li><b>24</b> labeled conversations</li><li>Cohen's kappa</li><li>judge release gate</li></ul>
+  <div class="cta"><a class="btn primary" href="#browse">Browse the golden set</a><a class="btn" href="#judge">Check the judge</a><a class="btn" href="https://github.com/jkelleman/golden-dataset-kit">View the code</a></div>
+  <p class="note">Independent portfolio project. Conversations are written for a fictional streaming service. The rater round and judge output are simulated data for the demos, as labeled in the repo.</p>
+</div>
+
+<nav class="tabs" aria-label="Sections"><div class="wrap">
+  <a href="#browse">Golden set</a><a href="#rubric">Rubric</a><a href="#raters">Rater agreement</a><a href="#judge">Judge readiness</a><a href="#guide">Labeling guide</a><a href="#lifecycle">Lifecycle</a>
+</div></nav>
+
+<section class="block" id="browse"><div class="wrap">
+  <h2>Golden set</h2>
+  <p class="sub">Each conversation is judged on its final agent turn. A red dot means at least one criterion failed.</p>
+  <div class="chips" role="group" aria-label="Filter" id="filters"></div>
+  <div class="lib"><div class="list" id="list"></div><article class="card" id="detail" aria-live="polite"></article></div>
+</div></section>
+
+<section class="block" id="rubric"><div class="wrap">
+  <h2>Rubric</h2>
+  <p class="sub" id="graded"></p>
+  <div class="grid g2" id="crits"></div>
+</div></section>
+
+<section class="block" id="raters"><div class="wrap">
+  <h2>Rater agreement</h2>
+  <p class="sub">Two people label the same turns before anyone trusts the rubric. Kappa corrects for agreement by chance. Below 0.6, the criterion needs clearer boundaries before a judge can learn it.</p>
+  <div class="tablewrap" id="kappa"></div>
+</div></section>
+
+<section class="block" id="judge"><div class="wrap">
+  <h2>Judge readiness</h2>
+  <p class="sub">The sample judge's verdicts scored against the golden labels. Fail recall is what matters for critical criteria: of the turns people failed, how many did the judge catch? Move the gates to see what ships.</p>
+  <div class="gate">
+    <label>Minimum agreement <input type="range" id="minAgree" min="0.5" max="1" step="0.01" value="0.85"><output id="oAgree"></output></label>
+    <label>Minimum fail recall, critical criteria <input type="range" id="minRecall" min="0.5" max="1" step="0.01" value="0.95"><output id="oRecall"></output></label>
+  </div>
+  <div class="tablewrap" id="score"></div>
+  <p class="verdict" id="verdict"></p>
+  <div id="misses"></div>
+</div></section>
+
+<section class="block" id="guide"><div class="wrap"><h2>Labeling guide</h2><div class="prose" data-md="guidelines/labeling-guide.md"></div></div></section>
+<section class="block" id="lifecycle"><div class="wrap"><h2>Lifecycle</h2><div class="prose" data-md="docs/lifecycle.md"></div></div></section>
+</main>
+
+<footer><div class="wrap"><span>Built by <a href="https://aiwithjen.com">Jen Kelleman</a>, content designer for AI.</span><a href="https://github.com/jkelleman/golden-dataset-kit">Source on GitHub</a></div></footer>
+
+<script type="module">
+import * as yaml from "./assets/vendor/js-yaml.mjs";
+import { marked } from "./assets/vendor/marked.esm.js";
+import { trackTabs, text, esc } from "./assets/tabs.js";
+
+const jsonl = (s) => s.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+const [rubric, golden, preds, ann] = await Promise.all([
+  text("rubric/rubric.yaml").then(yaml.load),
+  text("data/golden_set.jsonl").then(jsonl),
+  text("data/sample_judge_predictions.jsonl").then(jsonl),
+  text("data/annotations_round1.csv"),
+]);
+const crit = rubric.criteria, critById = Object.fromEntries(crit.map((c) => [c.id, c]));
+const tag = (v) => `<span class="tag ${v === "pass" ? "ok" : v === "fail" ? "no" : "na"}">${v}</span>`;
+const sevTag = (s) => `<span class="tag ${s === "critical" ? "no" : s === "major" ? "warn" : ""}">${s}</span>`;
+
+// Golden set browser
+const failed = (g) => Object.values(g.labels).includes("fail");
+const FILTERS = [["all", "All"], ["fail", "Has a fail"], ["chat", "Chat"], ["voice", "Voice"], ["hard", "Hard"]];
+const fEl = document.getElementById("filters");
+fEl.innerHTML = FILTERS.map(([k, l], i) => `<button class="chip" aria-pressed="${i === 0}" data-f="${k}">${l}</button>`).join("");
+let filt = "all", cur = golden.find(failed)?.id || golden[0].id;
+const keep = (g) => filt === "all" || (filt === "fail" ? failed(g) : filt === "hard" ? g.difficulty === "hard" : g.channel === filt);
+function list() {
+  document.getElementById("list").innerHTML = golden.filter(keep).map((g) => `<button class="item" data-id="${g.id}" aria-current="${g.id === cur}">
+    <span class="i"><b>${g.id}</b>${esc(g.intent.replaceAll("_", " "))}</span><span class="dot" style="background:${failed(g) ? "var(--no)" : "var(--ok)"}" aria-label="${failed(g) ? "has a fail" : "all pass"}"></span></button>`).join("");
+}
+function detail() {
+  const g = golden.find((x) => x.id === cur);
+  const ctx = Object.entries(g.context || {}).filter(([, v]) => v && !(Array.isArray(v) && !v.length));
+  document.getElementById("detail").innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="mono" style="font-weight:600">${g.id}</span><span class="tag">${esc(g.intent)}</span><span class="tag">${g.channel}</span><span class="tag">${g.locale}</span><span class="tag">${g.difficulty}</span>${(g.error_tags || []).map((t) => `<span class="tag no">${esc(t)}</span>`).join("")}</div>
+    ${ctx.length ? `<div class="ctx"><span class="who">Context the agent had</span><pre>${esc(ctx.map(([k, v]) => `${k}: ${typeof v === "string" ? v : JSON.stringify(v)}`).join("\n"))}</pre></div>` : ""}
+    <div class="convo" style="margin-top:14px">${g.conversation.map((t, i) => `<div class="bubble ${t.role === "member" ? "member" : "agent"}"${i === g.conversation.length - 1 ? ' style="outline:2px solid var(--accent);outline-offset:2px"' : ""}><div class="who">${t.role}${i === g.conversation.length - 1 ? " · graded turn" : ""}</div>${esc(t.text)}</div>`).join("")}</div>
+    <div class="labels">${crit.map((c) => `<div class="row"><span class="mono">${c.id}</span>${tag(g.labels[c.id])}<span class="why muted">${esc(g.rationale?.[c.id] || "")}</span></div>`).join("")}</div>`;
+}
+fEl.addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; filt = b.dataset.f; fEl.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b)); list(); });
+document.getElementById("list").addEventListener("click", (e) => { const b = e.target.closest(".item"); if (!b) return; cur = b.dataset.id; list(); detail(); if (innerWidth < 960) document.getElementById("detail").scrollIntoView({ behavior: "smooth" }); });
+list(); detail();
+
+// Rubric
+document.getElementById("graded").textContent = rubric.graded_unit;
+document.getElementById("crits").innerHTML = crit.map((c) => `<article class="card crit">
+  <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3>${c.id}</h3>${sevTag(c.severity)}</div>
+  <p class="q">${esc(c.question)}</p>
+  <dl><dt>Pass</dt><dd>${esc(c.pass)}</dd><dt>Fail</dt><dd>${esc(c.fail)}</dd><dt>N/A</dt><dd>${esc(c.na)}</dd></dl>
+  ${c.error_tags ? `<p style="display:flex;flex-wrap:wrap;gap:4px">${c.error_tags.map((t) => `<span class="tag">${t}</span>`).join("")}</p>` : ""}</article>`).join("");
+
+// Rater agreement (same math as scripts/agreement.py)
+const rows = ann.trim().split(/\r?\n/).slice(1).map((l) => l.split(",").map((x) => x.trim()));
+const byC = {};
+for (const [, c, a, b] of rows) (byC[c] ||= []).push([a, b]);
+function kappa(pairs) {
+  const n = pairs.length, obs = pairs.filter(([a, b]) => a === b).length / n;
+  const ca = {}, cb = {}; for (const [a, b] of pairs) { ca[a] = (ca[a] || 0) + 1; cb[b] = (cb[b] || 0) + 1; }
+  const exp = [...new Set([...Object.keys(ca), ...Object.keys(cb)])].reduce((s, l) => s + ((ca[l] || 0) / n) * ((cb[l] || 0) / n), 0);
+  return { obs, k: exp === 1 ? 1 : (obs - exp) / (1 - exp), n };
+}
+document.getElementById("kappa").innerHTML = `<table><thead><tr><th>Criterion</th><th>Severity</th><th class="num">Items</th><th class="num">Agreement</th><th class="num">Kappa</th><th>Status</th></tr></thead><tbody>${
+  crit.filter((c) => byC[c.id]).map((c) => { const r = kappa(byC[c.id]); return `<tr><td class="mono">${c.id}</td><td>${sevTag(c.severity)}</td><td class="num">${r.n}</td><td class="num">${(r.obs * 100).toFixed(0)}%</td><td class="num">${r.k.toFixed(2)}</td><td>${r.k >= 0.6 ? '<span class="tag ok">clear enough</span>' : '<span class="tag warn">clarify boundaries</span>'}</td></tr>`; }).join("")}</tbody></table>`;
+
+// Judge readiness (same math as scripts/score_judge.py)
+const truth = Object.fromEntries(golden.map((g) => [g.id, g.labels]));
+const stats = {}, misses = [];
+for (const p of preds) {
+  const t = truth[p.id]?.[p.criterion]; if (t == null) continue;
+  const s = (stats[p.criterion] ||= { n: 0, agree: 0, tp: 0, fn: 0, fp: 0 });
+  s.n++; s.agree += p.verdict === t;
+  if (t === "fail" && p.verdict === "fail") s.tp++; else if (t === "fail") { s.fn++; misses.push(p); } else if (p.verdict === "fail") s.fp++;
+}
+const pct = (x) => (Number.isNaN(x) ? "–" : Math.round(x * 100) + "%");
+function score() {
+  const minA = +document.getElementById("minAgree").value, minR = +document.getElementById("minRecall").value;
+  document.getElementById("oAgree").textContent = pct(minA); document.getElementById("oRecall").textContent = pct(minR);
+  const failing = [];
+  document.getElementById("score").innerHTML = `<table><thead><tr><th>Criterion</th><th>Severity</th><th class="num">Agreement</th><th class="num">Fail recall</th><th class="num">Fail precision</th><th>Gate</th></tr></thead><tbody>${
+    crit.filter((c) => stats[c.id]).map((c) => {
+      const s = stats[c.id], a = s.agree / s.n, r = s.tp + s.fn ? s.tp / (s.tp + s.fn) : NaN, pr = s.tp + s.fp ? s.tp / (s.tp + s.fp) : NaN;
+      let ok = a >= minA; if (c.severity === "critical" && !Number.isNaN(r)) ok = ok && r >= minR;
+      if (!ok) failing.push(c.id);
+      return `<tr><td class="mono">${c.id}</td><td>${sevTag(c.severity)}</td><td class="num">${pct(a)}</td><td class="num">${pct(r)}</td><td class="num">${pct(pr)}</td><td>${ok ? '<span class="tag ok">ready</span>' : '<span class="tag no">not ready</span>'}</td></tr>`;
+    }).join("")}</tbody></table>`;
+  document.getElementById("verdict").innerHTML = failing.length ? `<b>Not ready</b> on ${failing.map((f) => `<span class="mono">${f}</span>`).join(", ")}.` : "<b>Judge ready</b> at these gates.";
+}
+document.getElementById("minAgree").addEventListener("input", score);
+document.getElementById("minRecall").addEventListener("input", score);
+score();
+document.getElementById("misses").innerHTML = misses.length ? `<h3 style="font-size:16px;margin:24px 0 8px">Missed fails to send to human review</h3><div class="tablewrap"><table><thead><tr><th>Item</th><th>Criterion</th><th>Judge said</th></tr></thead><tbody>${misses.map((m) => `<tr><td class="mono">${m.id}</td><td class="mono">${m.criterion}</td><td>${tag(m.verdict)}</td></tr>`).join("")}</tbody></table></div>` : "";
+
+await Promise.all([...document.querySelectorAll("[data-md]")].map(async (el) => { el.innerHTML = marked.parse(await text(el.dataset.md)); }));
+trackTabs();
+</script>
+</body>
+</html>
