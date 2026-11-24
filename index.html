@@ -93,7 +93,7 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
 <script type="module">
 import * as yaml from "./assets/vendor/js-yaml.mjs";
 import { marked } from "./assets/vendor/marked.esm.js";
-import { trackTabs, text, esc } from "./assets/tabs.js";
+import { trackTabs, text, esc, renderMd } from "./assets/tabs.js";
 
 const jsonl = (s) => s.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
 const [rubric, golden, preds, ann] = await Promise.all([
@@ -179,7 +179,7 @@ document.getElementById("minRecall").addEventListener("input", score);
 score();
 document.getElementById("misses").innerHTML = misses.length ? `<h3 style="font-size:16px;margin:24px 0 8px">Missed fails to send to human review</h3><div class="tablewrap"><table><thead><tr><th>Item</th><th>Criterion</th><th>Judge said</th></tr></thead><tbody>${misses.map((m) => `<tr><td class="mono">${m.id}</td><td class="mono">${m.criterion}</td><td>${tag(m.verdict)}</td></tr>`).join("")}</tbody></table></div>` : "";
 
-await Promise.all([...document.querySelectorAll("[data-md]")].map(async (el) => { el.innerHTML = marked.parse(await text(el.dataset.md)); }));
+await Promise.all([...document.querySelectorAll("[data-md]")].map((el) => renderMd(el, marked, "golden-dataset-kit")));
 trackTabs();
 </script>
 </body>
